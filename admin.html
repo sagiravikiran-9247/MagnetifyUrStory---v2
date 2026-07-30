@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard | Magnetify Ur Story</title>
+  <link rel="stylesheet" href="./styles.css">
+  <style>
+    .admin-body {
+      background: #f4edf9;
+      min-height: 100vh;
+    }
+    .admin-nav {
+      background: #2a173b;
+      color: white;
+      padding: 16px 0;
+      box-shadow: 0 4px 20px rgba(42, 23, 59, 0.2);
+    }
+    .admin-card {
+      background: #ffffff;
+      border-radius: 20px;
+      padding: 24px;
+      border: 1px solid rgba(119, 86, 155, 0.15);
+      box-shadow: 0 10px 30px rgba(74, 44, 102, 0.08);
+      margin-bottom: 24px;
+    }
+    .admin-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 16px;
+      font-size: 13px;
+      min-width: 600px;
+    }
+    .admin-table th {
+      background: #ebdcf9;
+      color: #4a2c66;
+      padding: 12px 14px;
+      text-align: left;
+      font-weight: 800;
+    }
+    .admin-table td {
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(119, 86, 155, 0.1);
+      color: #2a173b;
+    }
+    .admin-table tr:hover {
+      background: #fcf8ff;
+    }
+    .price-input-small {
+      width: 90px;
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: 1px solid #77569b;
+      font-weight: 800;
+      color: #4a2c66;
+    }
+    .tab-btn {
+      padding: 10px 20px;
+      border-radius: 99px;
+      background: rgba(255, 255, 255, 0.15);
+      color: white;
+      border: none;
+      font-family: var(--font-heading);
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .tab-btn.active, .tab-btn:hover {
+      background: #ff4e78;
+      color: white;
+    }
+    .table-responsive {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+  </style>
+</head>
+<body class="admin-body">
+
+  <!-- ADMIN LOGIN OVERLAY -->
+  <div id="adminLoginScreen" style="position: fixed; inset: 0; background: rgba(42, 23, 59, 0.95); backdrop-filter: blur(12px); z-index: 999; display: flex; align-items: center; justify-content: center; padding: 20px;">
+    <div style="background: white; border-radius: 24px; padding: 28px; max-width: 400px; width: 100%; text-align: center; box-shadow: 0 25px 60px rgba(0,0,0,0.4);">
+      
+      <img src="./logo.png" alt="Logo" style="height: 56px; border-radius: 12px; margin-bottom: 14px;">
+      <h2 style="font-size: 22px; color: #2a173b; font-weight: 800;">Admin Login</h2>
+      <p style="font-size: 12px; color: #77569b; margin-bottom: 20px;">Magnetify Ur Story Control Panel</p>
+
+      <form onsubmit="handleAdminLogin(event)" autocomplete="off">
+        <div style="margin-bottom: 14px; text-align: left;">
+          <label style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: #4a2c66; display: block; margin-bottom: 6px;">Login ID / Mobile Number</label>
+          <input type="text" id="adminUser" class="form-input" value="" placeholder="Enter Login ID" required style="background: #f9f4fc;" autocomplete="off">
+        </div>
+
+        <div style="margin-bottom: 20px; text-align: left;">
+          <label style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: #4a2c66; display: block; margin-bottom: 6px;">Password</label>
+          <input type="password" id="adminPass" class="form-input" value="" placeholder="Enter Password" required style="background: #f9f4fc;" autocomplete="off">
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; font-size: 14px;">
+          Login to Dashboard 🔐
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ADMIN NAVBAR -->
+  <nav class="admin-nav">
+    <div class="container flex-between" style="flex-wrap: wrap; gap: 14px;">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <img src="./logo.png" alt="Logo" style="height: 40px; border-radius: 10px; background: white; padding: 2px;">
+        <div>
+          <span style="font-size: 16px; font-weight: 800; color: white; display: block;">Magnetify Ur Story</span>
+          <span style="font-size: 10px; color: #f48fb1; font-weight: 700;">ADMIN DASHBOARD</span>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs (Mobile Responsive) -->
+      <div class="admin-nav-tabs" style="display: flex; gap: 8px; flex-wrap: wrap;">
+        <button onclick="switchAdminTab('productsTab', this)" class="tab-btn active">📦 Products & Prices</button>
+        <button onclick="switchAdminTab('categoriesTab', this)" class="tab-btn">🏷️ Categories</button>
+        <button onclick="switchAdminTab('ordersTab', this)" class="tab-btn">📋 Customer Orders</button>
+        <a href="./index.html" class="tab-btn" style="background: #ff4e78; text-decoration: none;">View Live Site 🌐</a>
+        <button onclick="adminLogout()" class="tab-btn" style="background: rgba(255,255,255,0.2);">Logout 🚪</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- DASHBOARD CONTENT -->
+  <div class="container" style="padding-top: 28px; padding-bottom: 60px;">
+    
+    <!-- STATS BANNER (MOBILE 2-COLUMN RESPONSIVE) -->
+    <div class="admin-stats-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px;">
+      <div class="admin-card" style="margin-bottom: 0; text-align: center; background: linear-gradient(135deg, #77569b, #4a2c66); color: white; padding: 18px;">
+        <span style="font-size: 11px; font-weight: 700; opacity: 0.8; text-transform: uppercase;">Active Products</span>
+        <h3 style="font-size: 28px; color: white; font-weight: 800;" id="statTotalProducts">0</h3>
+      </div>
+      <div class="admin-card" style="margin-bottom: 0; text-align: center; background: linear-gradient(135deg, #ff4e78, #f48fb1); color: white; padding: 18px;">
+        <span style="font-size: 11px; font-weight: 700; opacity: 0.8; text-transform: uppercase;">Total Categories</span>
+        <h3 style="font-size: 28px; color: white; font-weight: 800;" id="statTotalCategories">0</h3>
+      </div>
+      <div class="admin-card" style="margin-bottom: 0; text-align: center; background: linear-gradient(135deg, #25d366, #128c7e); color: white; padding: 18px;">
+        <span style="font-size: 11px; font-weight: 700; opacity: 0.8; text-transform: uppercase;">Customer Orders</span>
+        <h3 style="font-size: 28px; color: white; font-weight: 800;" id="statTotalOrders">0</h3>
+      </div>
+      <div class="admin-card" style="margin-bottom: 0; text-align: center; background: linear-gradient(135deg, #ffb74d, #ffa726); color: white; padding: 18px;">
+        <span style="font-size: 11px; font-weight: 700; opacity: 0.8; text-transform: uppercase;">Store Status</span>
+        <h3 style="font-size: 16px; color: white; font-weight: 800; margin-top: 6px;">LIVE & READY ✨</h3>
+      </div>
+    </div>
+
+    <!-- TAB 1: PRODUCTS & PRICES MANAGEMENT -->
+    <div id="productsTab" class="admin-tab-content">
+      
+      <!-- ADD NEW PRODUCT CARD (MOBILE 1-COLUMN RESPONSIVE) -->
+      <div class="admin-card">
+        <h3 style="font-size: 17px; color: #2a173b; margin-bottom: 14px;">➕ Add New Item to Store</h3>
+        
+        <form onsubmit="addNewProduct(event)" class="admin-add-form" style="display: grid; grid-template-columns: 2fr 1.5fr 1fr 2fr 1fr; gap: 12px; align-items: end;">
+          <div>
+            <label class="form-label">Product Name *</label>
+            <input type="text" id="newProdName" class="form-input" placeholder="e.g. Polaroid Magnet Pack" required style="background: #fdfafe;">
+          </div>
+          <div>
+            <label class="form-label">Category *</label>
+            <select id="newProdCategory" class="form-input" required style="background: #fdfafe; padding: 12px;">
+              <!-- Dynamic Categories -->
+            </select>
+          </div>
+          <div>
+            <label class="form-label">Price (₹) *</label>
+            <input type="number" id="newProdPrice" class="form-input" placeholder="499" required style="background: #fdfafe;">
+          </div>
+          <div>
+            <label class="form-label">Image Path</label>
+            <input type="text" id="newProdImg" class="form-input" value="./mywork2.jpg" placeholder="./mywork2.jpg" style="background: #fdfafe;">
+          </div>
+          <div>
+            <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px;">
+              Add Item 🚀
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- PRODUCT LIST TABLE (SCROLLABLE ON MOBILE) -->
+      <div class="admin-card">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 8px;">
+          <h3 style="font-size: 17px; color: #2a173b;">📦 Manage Store Items & Prices</h3>
+          <span style="font-size: 11px; color: #77569b; font-weight: 700;">* Edit price directly and click Save Price!</span>
+        </div>
+
+        <div class="table-responsive">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Item Image</th>
+                <th>Product Title</th>
+                <th>Category</th>
+                <th>Current Cost (₹)</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="adminProductsTable">
+              <!-- Dynamic Products Rows -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- TAB 2: CATEGORIES MANAGEMENT -->
+    <div id="categoriesTab" class="admin-tab-content" style="display: none;">
+      
+      <div class="admin-card">
+        <h3 style="font-size: 17px; color: #2a173b; margin-bottom: 14px;">🏷️ Add New Store Category</h3>
+        
+        <form onsubmit="addNewCategory(event)" style="display: flex; gap: 12px; flex-wrap: wrap;">
+          <input type="text" id="newCatName" class="form-input" placeholder="e.g. Rakhis, Best Sellers, Birthday" required style="background: #fdfafe; flex: 1; min-width: 200px;">
+          <button type="submit" class="btn btn-primary" style="white-space: nowrap;">
+            Add Category 🏷️
+          </button>
+        </form>
+      </div>
+
+      <div class="admin-card">
+        <h3 style="font-size: 17px; color: #2a173b; margin-bottom: 14px;">Active Product Categories</h3>
+        <div id="adminCategoriesList" style="display: flex; gap: 10px; flex-wrap: wrap;">
+          <!-- Dynamic Category Pills -->
+        </div>
+      </div>
+
+    </div>
+
+    <!-- TAB 3: CUSTOMER ORDERS LOG -->
+    <div id="ordersTab" class="admin-tab-content" style="display: none;">
+      
+      <div class="admin-card">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 8px;">
+          <h3 style="font-size: 17px; color: #2a173b;">📋 Customer WhatsApp / Store Orders Log</h3>
+          <button onclick="clearOrdersLog()" class="btn btn-secondary" style="font-size: 11px;">Clear Orders History 🗑️</button>
+        </div>
+
+        <div class="table-responsive">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Timestamp</th>
+                <th>Customer Name</th>
+                <th>WhatsApp Number</th>
+                <th>Item Ordered</th>
+                <th>Total Cost</th>
+                <th>Delivery City/Address</th>
+              </tr>
+            </thead>
+            <tbody id="adminOrdersTable">
+              <!-- Dynamic Orders Rows -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="adminToast">Action completed!</div>
+
+  <script src="./admin-script.js"></script>
+</body>
+</html>
